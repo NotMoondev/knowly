@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme=dark] *));
+
+@theme {
+  /* 🌿 Primäre Farben – Akzente, Buttons */
+  --color-primary: #16a34a;           /* kräftiges Grün */
+  --color-primary-hover: #15803d;     /* dunkleres Grün für Hover */
+  --color-primary-light: #dcfce7;     /* leichter grüner Hintergrund / Gradient */
+  --color-primary-gradient-start: #bbf7d0;
+  --color-primary-gradient-end: #16a34a;
+  --color-secondary: #0d9488;         /* tiefes Grün als Highlight */
+  --color-secondary-light: #ccfbf1;
+
+  /* ✅ Statusfarben */
+  --color-success: #22c55e;           /* richtig */
+  --color-success-light: #d1fae5;
+  --color-error: #ef4444;             /* falsch */
+  --color-error-light: #fee2e2;
+  --color-warning: #facc15;           /* Hinweis */
+  --color-warning-light: #fef9c3;
+
+  /* 🎨 Neutrale Farben */
+  --color-bg: #f0fdf4;                /* heller, leicht grüner Tint für Hintergrund */
+  --color-bg-gradient-start: #f0fdf4;
+  --color-bg-gradient-end: #d9f99d;   /* sanfter Verlauf möglich */
+  --color-surface: #ffffff;           /* Karten / Panels */
+  --color-surface-light: #f9fafb;
+  --color-border: #e5e7eb;            /* Linien, Trennungen */
+  --color-border-muted: #d1d5db;
+  --color-text: #111827;              /* Primärer Text */
+  --color-muted: #6b7280;        /* Sekundärer Text */
+  --color-text-light: #374151;
+
+  /* 🎨 Schatten / Glow für moderne Effekte */
+  --color-shadow-light: rgba(0, 0, 0, 0.05);
+  --color-shadow-medium: rgba(0, 0, 0, 0.1);
+  --color-shadow-strong: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] {
+  --color-bg: #0f1115;                /* sehr dunkles Grau / fast schwarz */
+  --color-bg-gradient-start: #0f1115;
+  --color-bg-gradient-end: #1f2a1f;   /* leicht grüne Nuance */
+  --color-surface: #1a1c22;           /* Panel Hintergrund */
+  --color-surface-light: #22252b;
+  --color-border: #2c2f36;            /* dezente Linien */
+  --color-border-muted: #3a3d44;
+  --color-text: #f5f5f5;              /* primärer Text hell */
+  --color-muted: #a0a0a0;        /* sekundärer Text hellgrau */
+
+  --color-primary: #22c55e;           /* kräftiges Grün */
+  --color-primary-hover: #16a34a;     /* dunkleres Grün */
+  --color-primary-light: #064e3b;
+  --color-primary-gradient-start: #16a34a;
+  --color-primary-gradient-end: #22c55e;
+  --color-secondary: #0d9488;         /* tiefes Grün für Highlights */
+  --color-secondary-light: #064e3b;
+}
