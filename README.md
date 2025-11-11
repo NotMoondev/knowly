@@ -1,7 +1,5 @@
 # Knowly
 
-> Pages Deployment soon™
-
 ## About
 
 Random 3am made quiz game in Nuxt based on [OpenTriviaDB](https://opentdb.com/)
