@@ -1,5 +1,6 @@
 import { defineEventHandler, getQuery } from 'h3'
 import { questionCache } from './cache'
+import he from 'he'
 
 interface OpenTriviaResponse {
   response_code: number
@@ -18,15 +19,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 function decodeHtml(html: string): string {
-  return html
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&rsquo;/g, "’")
-    .replace(/&eacute;/g, "é")
-    .replace(/&ldquo;/g, '"')
+  return he.decode(html)
 }
 
 export default defineEventHandler(async (event) => {

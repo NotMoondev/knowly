@@ -134,7 +134,6 @@ async function startGame() {
   loading.value = true
   gameStore.setUserData(username.value, difficulty.value, category.value)
 
-  // kleine Verzögerung für sanftere UX
   await new Promise(resolve => setTimeout(resolve, 600))
 
   router.push('/game')

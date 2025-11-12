@@ -124,7 +124,6 @@ interface Question {
     question: string
     options: string[]
     correct?: string
-    // neue Felder für UI-Status
     selectedCorrect?: boolean
     correctAnswer?: string
 }
@@ -247,7 +246,6 @@ async function selectAnswer(answer: string) {
     }
 }
 
-// Nächste Frage
 function nextQuestion() {
     if (!answered.value) return
     currentIndex.value++
@@ -255,7 +253,6 @@ function nextQuestion() {
     answered.value = false
 }
 
-// Quiz neu starten
 function restartQuiz() {
     currentIndex.value = 0
     selectedAnswer.value = null

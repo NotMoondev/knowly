@@ -9,6 +9,6 @@
 import { onMounted } from "vue"
 
 onMounted(() => {
-  document.documentElement.setAttribute('data-theme', 'dark');
+  document.documentElement.setAttribute('data-theme', 'dark')
 })
 </script>

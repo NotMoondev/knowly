@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { Trophy } from 'lucide-vue-next'
 import { categories } from '~/constants/categories'
 
@@ -61,21 +61,34 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const tabs = ['Mixed', 'Easy', 'Medium', 'Hard']
-const activeTab = ref('Mixed')
+const tabs = ['Gemischt', 'Leicht', 'Mittel', 'Schwer']
+const activeTab = ref('Gemischt')
 
 function close() {
   emit('update:modelValue', false)
 }
 
+function mapDifficultyToTab(difficulty: string): string {
+  switch (difficulty) {
+    case 'easy':
+      return 'Leicht'
+    case 'medium':
+      return 'Mittel'
+    case 'hard':
+      return 'Schwer'
+    default:
+      return 'Gemischt'
+  }
+}
+
 function getCategoryLabelById(id: string): string {
-  const category = categories.find(cat => cat.value === id);
-  return category ? category.label : 'Unbekannt';
+  const category = categories.find(cat => cat.value === id)
+  return category ? category.label : 'Unbekannt'
 }
 
 const filteredLeaderboard = computed(() => {
   return props.data
-    .filter(entry => entry.difficulty === activeTab.value.toLowerCase())
+    .filter(entry => mapDifficultyToTab(entry.difficulty) === activeTab.value)
     .slice(0, 10)
 })
 </script>

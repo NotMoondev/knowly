@@ -6,7 +6,7 @@ export const useGameStore = defineStore('game', {
     difficulty: '',
     category: '',
     score: 0,
-    questions: [] as any[], // nur Frage + Options
+    questions: [] as any[],
   }),
   actions: {
     setUserData(name: string, diff: string, cat: string) {
