@@ -17,8 +17,8 @@ export const useGameStore = defineStore('game', {
     setQuestions(questions: any[]) {
       this.questions = questions
     },
-    addPoint() {
-      this.score++
+    addPoints(amount: number) {
+      this.score += amount
     },
     reset() {
       this.username = ''

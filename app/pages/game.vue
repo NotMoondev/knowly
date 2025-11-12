@@ -27,8 +27,9 @@
         </div>
 
         <!-- Fehlerzustand -->
-        <div v-else-if="error" class="text-error font-semibold text-center py-20">
-            Fehler beim Laden der Fragen.
+        <div v-else-if="error" class="font-semibold text-center py-20 flex flex-col">
+            <span class="text-error">Fehler beim Laden der Fragen.</span>
+            <button @click="router.push('/')" class="underline mt-2 cursor-pointer">Zurück zur Hauptseite</button>
         </div>
 
         <!-- Quiz Content -->
@@ -40,7 +41,8 @@
             </div>
 
             <!-- Aktuelle Frage -->
-            <div v-if="currentQuestion && !isFinished" class="bg-surface-light p-6 rounded-2xl shadow-inner space-y-6 relative">
+            <div v-if="currentQuestion && !isFinished"
+                class="bg-surface-light p-6 rounded-2xl shadow-inner space-y-6 relative">
                 <p class="text-lg font-semibold text-text">{{ currentQuestion.question }}</p>
 
                 <!-- Normale Fragen -->
@@ -101,11 +103,11 @@
                 <div v-if="isFinished" class="flex flex-col items-center">
                     <h2 class="text-2xl font-bold text-primary">Quiz beendet</h2>
                     <p class="text-center mb-4">
-                        Du hast {{ gameStore.score }} von {{ questions.length }} Fragen richtig beantwortet.
+                        Du hast {{ correctAnswerCount }} von {{ questions.length }} Fragen richtig beantwortet.
                     </p>
                     <button @click="restartQuiz"
                         class="py-3 px-6 rounded-xl font-bold text-white bg-secondary enabled:hover:bg-secondary-light shadow-md transform transition">
-                        Quiz neu starten
+                        Neues Quiz starten
                     </button>
                 </div>
             </div>
@@ -134,6 +136,7 @@ const questions = ref<Question[]>([])
 const currentIndex = ref(0)
 const selectedAnswer = ref<string | null>(null)
 const answered = ref(false)
+const correctAnswerCount = ref<number>(0)
 
 const loading = ref(true)
 const error = ref(false)
@@ -154,6 +157,20 @@ watchEffect(() => {
     if (data.value) {
         questions.value = data.value.map(q => ({ ...q, correct: q.options[0] }))
         loading.value = false
+    }
+})
+
+watch(() => questions.value.length - currentIndex.value, (newValue, oldValue) => {
+    if (newValue === 0 && oldValue > 0) {
+        $fetch('/api/leaderboard', {
+            method: 'POST',
+            body: {
+                username: gameStore.username,
+                score: gameStore.score,
+                category: gameStore.category,
+                difficulty: gameStore.difficulty
+            }
+        })
     }
 })
 
@@ -201,7 +218,27 @@ async function selectAnswer(answer: string) {
         showFeedback.value = true
         setTimeout(() => (showFeedback.value = false), 1000)
 
-        if (res.selectedCorrect) gameStore.addPoint()
+        if (res.selectedCorrect) {
+            correctAnswerCount.value += 1
+            const difficulty = gameStore.difficulty
+            let points = 10
+
+            switch (difficulty) {
+                case 'easy':
+                    points = 10
+                    break
+                case 'medium':
+                    points = 20
+                    break
+                case 'hard':
+                    points = 30
+                    break
+                default:
+                    points = 15
+            }
+
+            gameStore.addPoints(points)
+        }
     } catch (err) {
         console.error('Fehler bei Antwortprüfung', err)
     } finally {
@@ -220,6 +257,10 @@ function nextQuestion() {
 
 // Quiz neu starten
 function restartQuiz() {
+    currentIndex.value = 0
+    selectedAnswer.value = null
+    answered.value = false
+    correctAnswerCount.value = 0
     gameStore.reset()
     router.push('/')
 }
@@ -229,33 +270,37 @@ function restartQuiz() {
 
 <style scoped>
 .loader-border {
-  border: 2px solid transparent;
-  border-top: 2px solid white;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  animation: spin 0.6s linear infinite;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 0.6s linear infinite;
 }
 
 .loader-small {
-  margin-left: 0.5rem;
+    margin-left: 0.5rem;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Pop-in Animation für Feedback */
 .fade-scale-enter-active,
 .fade-scale-leave-active {
-  transition: all 0.3s ease;
+    transition: all 0.3s ease;
 }
+
 .fade-scale-enter-from {
-  opacity: 0;
-  transform: scale(0.8);
+    opacity: 0;
+    transform: scale(0.8);
 }
+
 .fade-scale-leave-to {
-  opacity: 0;
-  transform: scale(0.8);
+    opacity: 0;
+    transform: scale(0.8);
 }
 </style>
