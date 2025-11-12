@@ -2,12 +2,26 @@
   <div class="w-full max-w-5xl bg-surface rounded-3xl shadow-lg p-10 space-y-8">
 
     <!-- Titel & Untertitel -->
-    <div class="flex flex-col items-start">
-      <h1 class="text-5xl font-extrabold text-transparent bg-clip-text! animate-gradient">
-        KNOWLY
-      </h1>
-      <h3 class="text-base font-semibold text-text">Teste dein Wissen, erweiter deinen Horizont</h3>
+    <div class="flex flex-row gap-3 justify-between">
+      <div class="flex flex-col items-start">
+        <h1 class="text-5xl font-extrabold text-transparent bg-clip-text! animate-gradient">
+          KNOWLY
+        </h1>
+        <h3 class="text-base font-semibold text-text">Teste dein Wissen, erweiter deinen Horizont</h3>
+      </div>
+
+      <!-- Leaderboard Button -->
+      <div class="flex justify-end self-start">
+        <button @click="showLeaderboard = true" class="flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold bg-surface-light text-white
+             hover:bg-secondary-light shadow-sm transition transform">
+          <Trophy class="w-5 h-5" />
+          <span>Leaderboard</span>
+        </button>
+      </div>
     </div>
+
+    <!-- Leaderboard Dialog -->
+    <KLLeaderboardDialog v-if="showLeaderboard" v-model="showLeaderboard" :data="leaderboard" :loading="loadingLeaderboard" :error="errorLeaderboard" />
 
     <div class="w-full max-w-6xl grid lg:grid-cols-2 gap-6">
       <!-- Username -->
@@ -45,12 +59,9 @@
     </div>
 
     <!-- Start Button -->
-    <button
-      @click="startGame"
-      :disabled="!username || !category || !difficulty || loading"
+    <button @click="startGame" :disabled="!username || !category || !difficulty || loading"
       class="w-full cursor-pointer py-3 rounded-xl font-bold text-white bg-primary shadow-md transform transition
-             disabled:opacity-50 disabled:cursor-not-allowed enabled:hover:bg-primary-hover enabled:hover:scale-105 flex items-center justify-center space-x-3"
-    >
+             disabled:opacity-50 disabled:cursor-not-allowed enabled:hover:bg-primary-hover enabled:hover:scale-105 flex items-center justify-center space-x-3">
       <span v-if="!loading">Start Quiz</span>
       <span v-else class="flex items-center space-x-2">
         <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -67,51 +78,44 @@
 import { ref } from 'vue'
 import KLSelect from '~/components/KLSelect.vue'
 import KLCategorySelect from '~/components/KLCategorySelect.vue'
-import {
-  Sparkles, Lightbulb, BookOpen, Film, Music, Theater, Tv, Gamepad2, ChessPawn,
-  FlaskConical, Cpu, Sigma, Book, Trophy, MapPin, Clock, Flag, Palette,
-  User, Dog, Truck, Smartphone, Moon, Images
-} from 'lucide-vue-next'
+import KLLeaderboardDialog from '~/components/KLLeaderboardDialog.vue'
+import { categories } from '~/constants/categories'
+import { diffs } from '~/constants/diffs'
+import { Trophy } from 'lucide-vue-next'
+
+interface LeaderboardEntry {
+  username: string
+  score: number
+  category: string
+  difficulty: string
+  created_at: string
+}
+
+const showLeaderboard = ref(false)
+const leaderboard = ref<LeaderboardEntry[]>([])
+const loadingLeaderboard = ref(false)
+const errorLeaderboard = ref(false)
+
+watch(showLeaderboard, async (visible) => {
+  if (visible) {
+    loadingLeaderboard.value = true
+    errorLeaderboard.value = false
+    try {
+      const res = await $fetch<{ leaderboard: LeaderboardEntry[] }>('/api/leaderboard')
+      leaderboard.value = res.leaderboard
+    } catch (e) {
+      console.error(e)
+      errorLeaderboard.value = true
+    } finally {
+      loadingLeaderboard.value = false
+    }
+  }
+})
 
 const username = ref()
 const category = ref()
 const difficulty = ref()
 const loading = ref(false)
-
-const categories = [
-  { label: 'Beliebig', value: '0', icon: Sparkles },
-  { label: 'Allgemeinwissen', value: '1', icon: Lightbulb },
-  { label: 'Bücher', value: '2', icon: BookOpen },
-  { label: 'Film', value: '3', icon: Film },
-  { label: 'Musik', value: '4', icon: Music },
-  { label: 'Musicals & Theater', value: '5', icon: Theater },
-  { label: 'Fernsehen', value: '6', icon: Tv },
-  { label: 'Videospiele', value: '7', icon: Gamepad2 },
-  { label: 'Brettspiele', value: '8', icon: ChessPawn },
-  { label: 'Wissenschaft & Natur', value: '9', icon: FlaskConical },
-  { label: 'Computer', value: '10', icon: Cpu },
-  { label: 'Mathematik', value: '11', icon: Sigma },
-  { label: 'Mythologie', value: '12', icon: Book },
-  { label: 'Sport', value: '13', icon: Trophy },
-  { label: 'Geografie', value: '14', icon: MapPin },
-  { label: 'Geschichte', value: '15', icon: Clock },
-  { label: 'Politik', value: '16', icon: Flag },
-  { label: 'Kunst', value: '17', icon: Palette },
-  { label: 'Prominente', value: '18', icon: User },
-  { label: 'Tiere', value: '19', icon: Dog },
-  { label: 'Fahrzeuge', value: '20', icon: Truck },
-  { label: 'Comics', value: '21', icon: Book },
-  { label: 'Gadgets', value: '22', icon: Smartphone },
-  { label: 'Anime & Manga', value: '23', icon: Moon },
-  { label: 'Cartoons & Animation', value: '24', icon: Images },
-]
-
-const diffs = [
-  { label: 'Beliebig', value: 'any' },
-  { label: 'Leicht', value: 'easy' },
-  { label: 'Mittel', value: 'medium' },
-  { label: 'Schwer', value: 'hard' },
-]
 
 function getDiffClass(option: string | number) {
   switch (option) {
@@ -129,19 +133,26 @@ async function startGame() {
   if (loading.value) return
   loading.value = true
   gameStore.setUserData(username.value, difficulty.value, category.value)
-  
-  // kleine Verzögerung für sanftere UX
+
   await new Promise(resolve => setTimeout(resolve, 600))
-  
+
   router.push('/game')
 }
 </script>
 
 <style scoped>
 @keyframes gradient-cycle {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .animate-gradient {

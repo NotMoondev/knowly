@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineProps, defineEmits, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 interface Option {
   label: string
