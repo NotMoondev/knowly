@@ -83,8 +83,16 @@ import { categories } from '~/constants/categories'
 import { diffs } from '~/constants/diffs'
 import { Trophy } from 'lucide-vue-next'
 
+interface LeaderboardEntry {
+  username: string
+  score: number
+  category: string
+  difficulty: string
+  created_at: string
+}
+
 const showLeaderboard = ref(false)
-const leaderboard = ref([])
+const leaderboard = ref<LeaderboardEntry[]>([])
 const loadingLeaderboard = ref(false)
 const errorLeaderboard = ref(false)
 
@@ -93,7 +101,7 @@ watch(showLeaderboard, async (visible) => {
     loadingLeaderboard.value = true
     errorLeaderboard.value = false
     try {
-      const res = await $fetch('/api/leaderboard')
+      const res = await $fetch<{ leaderboard: LeaderboardEntry[] }>('/api/leaderboard')
       leaderboard.value = res.leaderboard
     } catch (e) {
       console.error(e)
